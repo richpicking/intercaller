@@ -73,7 +73,7 @@ function outputDialButtons(data) {
   if(found.length > 0){
     outputHTML+= "<p>Tap the link below to dial.. </p><br><table>";
     for(var i=0;i<found.length;i++){
-      workingNumber = found[i].innerHTML.replace(/[^0-9]+/g, "");
+      workingNumber = found[i].innerText.replace(/[^0-9]+/g, "");
       outputHTML += "<tr><td>"+workingNumber+"</td><td><a href=\"tel:"+workingNumber+",,"+cleanInput+"#\" class=\"ui-btn ui-corner-all ui-icon-phone ui-btn-icon-left\">"+workingNumber+"</a></td><td>..pause.."+cleanInput+"\#</tc></tr>"
 
     //<a href="index.html" class="ui-btn ui-icon-phone ui-btn-icon-left">Home</a>
