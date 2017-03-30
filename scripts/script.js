@@ -48,6 +48,10 @@ function outputDialButtons(data) {
   //remove annoying spaces. (maybe do this after we have the correct DOM node ?)
   //text = data.replace(/\s+/g, "");
 
+  //remove annoying images - prevent the parser from downloading all the flag images !!
+  data = data.replace(/<img /gi, "<my_img ").replace(/<\/img>/gi, "</my_img>");
+
+
   //parse the intercall page into DOM nodes
   var $parsed_data = $('<div/>').append(data);
 
