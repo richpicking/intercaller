@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <base target="_top">
+  	<title>Intercall dialer</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1">
+
+
+
+
+<!-- Fix this to point to correct icon - move from dropbox ! -->
+    <link rel="apple-touch-icon" href="icons/Icon-60%402x.png" />
+    <link rel="apple-touch-icon" sizes="180x180" href="icons/Icon-60%403x.png" />
+<!-- End -->
+
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/1.11.2/jquery.min.js"></script>
+    <link rel="stylesheet" href="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquerymobile/1.4.5/jquery.mobile.min.js"></script>
+
+    <script src="/sripts/script.js"></script>
+
+
+    <script type='text/javascript'>
+
+
+ $(document).ready(function() {
+  //var dialArray;
+
+  $("#confform").submit(function(e) {
+    //alert('submit intercepted');
+    e.preventDefault();
+    $('#man_locn').fadeOut('slow');
+    $('#auto_locn').fadeOut('slow');
+    var cleanIn = $("#confid").val().replace(/[^0-9]+/g, '');
+    var ccode = $("#ccdrop").val();
+    if(parseInt(cleanIn) && ccode){
+      //alert("Country is " + ccode);
+      $('#loc_checkbox').fadeOut('slow');
+      $('#output').html("Working...");
+      //google.script.run.withSuccessHandler(onSuccess).getDialStrings(cleanIn, ccode);
+      //call getDialStrings from script.js locally
+      getDialStrings(cleanIn, ccode);
+      //console.log('numbers to dial: '+dialArray);
+    }else{
+      $('#output').html("Error: Check numbers and country code..");
+    }
+  });
+  $('#flip-checkbox-1').change(function() {
+    if (this.checked) {
+      getLocation();
+      $('#auto_locn').fadeIn('slow');
+      $('#man_locn').fadeOut('slow');
+    } else {
+      $('#auto_locn').fadeOut('slow');
+      $('#man_locn').fadeIn('slow');
+    }
+  });
+});
+
+function getLocation() {
+  if (navigator.geolocation) {
+    $("#location").html("<i>Locating...</i>");
+    navigator.geolocation.getCurrentPosition(showPosition);
+  } else {
+    $("#location").html("Geolocation is not supported by this browser.");
+  }
+}
+
+function showPosition(position) {
+
+  $("#location").html("Latitude: " + position.coords.latitude + "<br>Longitude: " + position.coords.longitude);
+
+  //jQuery.get( url, [ data ], [ callback(data, textStatus, XMLHttpRequest) ], [ dataType ] ) Returns: XMLHttpRequest
+
+  var getUrl = "https://maps.googleapis.com/maps/api/geocode/json?latlng=" + position.coords.latitude + "," + position.coords.longitude + "&key=AIzaSyDfyJJsmJQCIX1Tqw9gPISV0q8C0qDuCcc"
+
+  $.get(getUrl, null, showLongPos);
+
+}
+
+function showLongPos(data) {
+
+  var countryCode = "";
+
+  for (var i = 0; i < data.results[0].address_components.length; i++) {
+    if (data.results[0].address_components[i].types.indexOf("country") >= 0) {
+      countryCode += data.results[0].address_components[i].short_name;
+    }
+  }
+  $("#location").html(data.results[0].formatted_address + "<br>");
+
+  //$('select[name^="salesrep"] option[value="Bruce Jones"]').attr("selected","selected");
+  $("#ccdrop option[value=\"" + countryCode + "\"]").attr("selected", "selected");
+  $("#ccode").html("Using country code: "+countryCode);
+
+}
+</script>
+
+
+
+  </head>
+  <body>
+<link href='https://fonts.googleapis.com/css?family=Lato:400,900' rel='stylesheet' type='text/css'>
+<div data-role="page">
+    <h1 class="ui-bar ui-bar-a" style="font-family: 'Lato', sans-serif;"><b>Intercall Dialer</b></h1>
+  <form id="confform" role="form" action="#" target="_top">
+
+    <label for="confid"></label>
+
+    <input type="text" name="confno" data-mini="true" id="confid" value="" placeholder="Paste conference ID - (I ignore non-numerics)" data-clear-btn="true">
+
+    <button type="submit" class="ui-btn ui-corner-all ui-icon-gear ui-btn-icon-left">Get dial links</button>
+    <div id="loc_checkbox">
+    <label for="flip-checkbox-1">Auto location:</label>
+
+    <input type="checkbox" data-role="flipswitch" name="flip-checkbox-1" id="flip-checkbox-1">
+    </div>
+
+    <div class="ui-field-contain" id="man_locn">
+
+      <label for="select-native-1">Which country to dial from ?</label>
+
+      <select name="select-native-1" id="ccdrop">
+
+        <option value="GB">UK</option>
+
+        <option value="FR">France</option>
+
+        <option value="DE">Germany</option>
+
+        <option value="US">USA</option>
+      </select>
+    </div>
+    <div class="ui-field-contain" id="auto_locn" style="display: none;">
+      <div id="location"></div>
+      <div id="ccode"></div>
+    </div>
+  </form>
+      <div id="output"></div>
+      <div id="log"></div>
+</div>
+
+</body>
+</html>
